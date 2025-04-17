@@ -35,26 +35,20 @@ export default function CreateCommentPage() {
   const onSubmit = async (data: CommentFormData) => {
     setIsSubmitting(true);
     try {
-      // First, get all existing comments from the API to determine the next ID
       const apiComments = await fetchComments();
-      
-      // Create the comment via API
+
       const response = await createComment(data);
-      
-      // Get existing comments from localStorage or initialize empty array
+    
       const existingComments = JSON.parse(localStorage.getItem('comments') || '[]');
-      
-      // Create a new comment with an ID that's the total count of API comments + 1
+    
       const newComment = {
         ...response,
-        id: apiComments.length + 1, // Use the total count of comments from API + 1
-        postId: 1 // Default postId
+        id: apiComments.length + 1, 
+        postId: 1 
       };
-      
-      // Add the new comment to the array
+ 
       const updatedComments = [...existingComments, newComment];
-      
-      // Save to localStorage
+  
       localStorage.setItem('comments', JSON.stringify(updatedComments));
       
       router.push('/dashboard');

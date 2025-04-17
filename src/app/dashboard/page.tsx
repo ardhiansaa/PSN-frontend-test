@@ -21,7 +21,6 @@ export default function DashboardPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState<number | null>(null);
 
-  // Check if the screen is mobile size
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -53,19 +52,14 @@ export default function DashboardPage() {
     if (isAuthenticated) {
       const getComments = async () => {
         try {
-          // Get API comments
           const apiData = await fetchComments();
-          
-          // Get any locally stored comments
+       
           const localComments = JSON.parse(localStorage.getItem('comments') || '[]');
-          
-          // Get deleted comment IDs
+         
           const deletedIds = JSON.parse(localStorage.getItem('deletedCommentIds') || '[]');
-          
-          // Filter out deleted comments from API data
+        
           const filteredApiData = apiData.filter(comment => !deletedIds.includes(comment.id));
-          
-          // Combine API data with local comments
+     
           const combinedData = [...filteredApiData, ...localComments];
           
           setComments(combinedData);
@@ -81,7 +75,6 @@ export default function DashboardPage() {
     }
   }, [isAuthenticated]);
 
-  // Filter comments based on body text only
   useEffect(() => {
     if (searchTerm.trim() === '') {
       setFilteredComments(comments);
@@ -93,44 +86,36 @@ export default function DashboardPage() {
     }
   }, [searchTerm, comments]);
 
-  // Show confirmation modal before deleting
   const confirmDelete = (id: number) => {
     setCommentToDelete(id);
     setShowDeleteModal(true);
   };
 
-  // Handle actual deletion after confirmation
   const handleDeleteComment = async () => {
     if (commentToDelete === null) return;
     
     try {
       const id = commentToDelete;
-      
-      // Call API (though this is a mock delete in JSONPlaceholder)
+    
       await deleteComment(id);
-      
-      // Get existing deleted IDs or initialize empty array
+     
       const deletedIds = JSON.parse(localStorage.getItem('deletedCommentIds') || '[]');
-      
-      // Add this ID to the deleted list
+     
       if (!deletedIds.includes(id)) {
         const updatedDeletedIds = [...deletedIds, id];
         localStorage.setItem('deletedCommentIds', JSON.stringify(updatedDeletedIds));
       }
       
-      // Also remove from local created comments if it exists there
       const localComments = JSON.parse(localStorage.getItem('comments') || '[]') as Comment[];
       const updatedLocalComments = localComments.filter((comment: Comment) => comment.id !== id);
       localStorage.setItem('comments', JSON.stringify(updatedLocalComments));
-      
-      // Update state
+   
       const updatedComments = comments.filter(comment => comment.id !== id);
       setComments(updatedComments);
       setFilteredComments(updatedComments.filter(comment => 
         comment.body.toLowerCase().includes(searchTerm.toLowerCase())
       ));
-      
-      // Close modal and reset commentToDelete
+     
       setShowDeleteModal(false);
       setCommentToDelete(null);
     } catch (error) {
@@ -140,7 +125,6 @@ export default function DashboardPage() {
     }
   };
 
-  // Function to truncate text for display
   const truncateText = (text: string, maxLength: number) => {
     if (text.length > maxLength) {
       return text.substring(0, maxLength) + '...';
@@ -148,7 +132,6 @@ export default function DashboardPage() {
     return text;
   };
 
-  // Custom templates for each column to handle mobile responsiveness
   const nameTemplate = (rowData: Comment) => {
     return truncateText(rowData.name, 25);
   };
@@ -213,12 +196,10 @@ export default function DashboardPage() {
     );
   };
 
-  // Mobile Card View Component
   const MobileCardView = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const commentsPerPage = 5;
     
-    // Calculate pagination
     const indexOfLastComment = currentPage * commentsPerPage;
     const indexOfFirstComment = indexOfLastComment - commentsPerPage;
     const currentComments = filteredComments.slice(indexOfFirstComment, indexOfLastComment);
@@ -279,8 +260,7 @@ export default function DashboardPage() {
                 </Card.Body>
               </Card>
             ))}
-            
-            {/* Simple Pagination */}
+        
             <div className="d-flex justify-content-between align-items-center mt-3">
               <Button 
                 variant="outline-primary" 
@@ -355,8 +335,7 @@ export default function DashboardPage() {
               </DataTable>
             </div>
           )}
-          
-          {/* Delete Confirmation Modal */}
+  
           <DeleteConfirmationModal />
         </Col>
       </Row>
